@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# Git pre-commit hook for Rust project
+# This hook checks syntax errors and formats only staged Rust files
+
+set -e
+
+# Check if cargo is available
+if ! command -v cargo >/dev/null 2>&1; then
+    echo "Error: cargo command not found. Make sure Rust is installed."
+    exit 1
+fi
+
+# Get list of staged Rust files
+staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(rs)$' || true)
+
+if [ -z "$staged_files" ]; then
+    exit 0
+fi
+
+# Check for linting issues using cargo clippy
+if ! cargo clippy --all-targets --all-features -- -D warnings -A unused >/dev/null 2>&1; then
+    echo "Error: Code has linter issues. Fix linter warnings before pushing."
+    exit 1
+fi
+
+# Format the staged Rust files
+if ! cargo fmt >/dev/null 2>&1; then
+    echo "Error: Failed to format code."
+    exit 1
+fi
+
+# Re-add the formatted files to staging
+for file in $staged_files; do
+    if [ -f "$file" ]; then
+        git add "$file"
+    fi
+done
+
+exit 0

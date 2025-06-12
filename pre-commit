@@ -20,7 +20,7 @@ fi
 
 # Check for linting issues using cargo clippy
 if ! cargo clippy --all-targets --all-features -- -D warnings -A unused >/dev/null 2>&1; then
-    echo "Error: Code has linter issues. Fix linter warnings before pushing."
+    echo "Error: Linting issues found. Please fix them before committing."
     exit 1
 fi
 

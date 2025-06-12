@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Git pre-push hook for Rust project
+# This hook checks syntax errors and runs tests before push
+
+set -e
+
+# Check if cargo is available
+if ! command -v cargo >/dev/null 2>&1; then
+    echo "Error: cargo command not found. Make sure Rust is installed."
+    exit 1
+fi
+
+# Run tests
+if ! cargo test >/dev/null 2>&1; then
+    echo "Error: Tests failed. Fix failing tests before pushing."
+    exit 1
+fi
+exit 0
